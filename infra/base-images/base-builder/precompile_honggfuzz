@@ -26,6 +26,7 @@ PACKAGES=(
     zlib1g-dev
     pkg-config)
 
+apt-get update -y
 apt-get install -y ${PACKAGES[@]}
 
 pushd $SRC/honggfuzz > /dev/null

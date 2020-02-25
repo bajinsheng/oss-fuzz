@@ -23,7 +23,6 @@ RUN apt-get install -y git \
     make \
     binutils-dev \
     libc6-dev-i386
-
 # Download and install the latest stable Go.
 ADD https://storage.googleapis.com/golang/getgo/installer_linux $SRC/
 RUN chmod +x $SRC/installer_linux && \
@@ -102,7 +101,7 @@ RUN mkdir honggfuzz && \
     rm -rf $SRC/oss-fuzz.tar.gz
 
 COPY compile compile_afl compile_dataflow compile_libfuzzer compile_honggfuzz \
-    precompile_honggfuzz srcmap write_labels.py /usr/local/bin/
+    compile_aflsmart precompile_honggfuzz srcmap write_labels.py /usr/local/bin/
 
 COPY detect_repo.py /src
 

@@ -45,6 +45,8 @@ function get_dictionary() {
   [[ -z "$dict" ]] && return
   if [[ "$FUZZING_ENGINE" = "libfuzzer" ]]; then
      printf -- "-dict=%s" "$dict"
+  elif [[ "$FUZZING_ENGINE" = "aflsmart" ]]; then
+     printf -- "-x %s" "$dict"
   elif [[ "$FUZZING_ENGINE" = "afl" ]]; then
      printf -- "-x %s" "$dict"
   elif [[ "$FUZZING_ENGINE" = "honggfuzz" ]]; then
@@ -73,6 +75,22 @@ if [[ "$FUZZING_ENGINE" = afl ]]; then
   # AFL expects at least 1 file in the input dir.
   echo input > ${CORPUS_DIR}/input
   CMD_LINE="$OUT/afl-fuzz $AFL_FUZZER_ARGS -i $CORPUS_DIR -o $FUZZER_OUT $(get_dictionary) $* $OUT/$FUZZER"
+  echo "----------------------------------------------------------------------------------------------------"
+  echo CMD_LINE
+elif [[ "$FUZZING_ENGINE" = aflsmart ]]; then
+  cp $OUT/peach /usr/local/bin/
+  # https://chromium.googlesource.com/chromium/src/+/master/third_party/afl/src/docs/env_variables.txt
+  export ASAN_OPTIONS="$ASAN_OPTIONS:abort_on_error=1:symbolize=0"
+  export MSAN_OPTIONS="$MSAN_OPTIONS:exit_code=86:symbolize=0"
+  export UBSAN_OPTIONS="$UBSAN_OPTIONS:symbolize=0"
+  export AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1
+  export AFL_SKIP_CPUFREQ=1
+  # AFL expects at least 1 file in the input dir.
+  echo input > ${CORPUS_DIR}/input
+  CMD_LINE="$OUT/afl-fuzz $AFLSMART_FUZZER_ARGS -i $CORPUS_DIR -o $FUZZER_OUT -w peach -g $OUT/input_model.xml $(get_dictionary) $* $OUT/$FUZZER"
+  CMD_AFLSMART=$CMD_LINE
+  echo "----------------------------------------------------------------------------------------------------"
+  echo $CMD_AFLSMART
 elif [[ "$FUZZING_ENGINE" = honggfuzz ]]; then
   # Honggfuzz expects at least 1 file in the input dir.
   echo input > $CORPUS_DIR/input
@@ -107,6 +125,8 @@ echo $CMD_LINE
 
 # Unset OUT so the fuzz target can't rely on it.
 unset OUT
-
+if [[ "$FUZZING_ENGINE" = aflsmart ]]; then
+  CMD_LINE=$CMD_AFLSMART
+fi
 bash -c "$CMD_LINE"
 
