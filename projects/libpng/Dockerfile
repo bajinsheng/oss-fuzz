@@ -22,5 +22,5 @@ RUN apt-get update && \
 RUN git clone --depth 1 https://github.com/madler/zlib.git
 RUN git clone --depth 1 https://github.com/glennrp/libpng.git
 RUN cp libpng/contrib/oss-fuzz/build.sh $SRC
-COPY input_model.xml $OUT
+COPY input_model.xml $SRC
 WORKDIR libpng

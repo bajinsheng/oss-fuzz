@@ -80,4 +80,5 @@ cd peach-3.0.202-source
 CC=gcc-4.4 CXX=g++-4.4 ./waf configure
 CC=gcc-4.4 CXX=g++4.4 ./waf install
 cp -r output/linux_x86_64_release/bin/peach $OUT
+cp $SRC/input_model.xml $OUT
 popd > /dev/null
